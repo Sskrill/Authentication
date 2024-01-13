@@ -1,4 +1,4 @@
-package pqsql
+package database
 
 import (
 	"database/sql"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	_ "github.com/lib/pq"
 )
 
 type ConfigInfoDB struct {

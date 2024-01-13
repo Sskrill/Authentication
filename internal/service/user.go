@@ -2,69 +2,85 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"time"
 
-	"github.com/Sskrill/Authentication.git/internal/domain"
-	rep "github.com/Sskrill/Authentication.git/internal/repository"
-	"github.com/Sskrill/Authentication.git/pkg/hash"
+	"github.com/GOLANG-NINJA/crud-app/internal/domain"
 	"github.com/golang-jwt/jwt"
 )
 
-type UserService struct {
-	repos      *rep.Users
-	hasher     hash.PSHasher
+// PasswordHasher provides hashing logic to securely store passwords.
+type PasswordHasher interface {
+	Hash(password string) (string, error)
+}
+
+type UsersRepository interface {
+	Create(ctx context.Context, user domain.User) error
+	GetByCredentials(ctx context.Context, email, password string) (domain.User, error)
+}
+
+type SessionsRepository interface {
+	Create(ctx context.Context, token domain.RefreshSession) error
+	Get(ctx context.Context, token string) (domain.RefreshSession, error)
+}
+
+type Users struct {
+	repo         UsersRepository
+	sessionsRepo SessionsRepository
+	hasher       PasswordHasher
+
 	hmacSecret []byte
-	ttl        time.Duration
 }
 
-func NewUsersService(repos *rep.Users, hasher hash.PSHasher, secret []byte, time time.Duration) UserService {
-	return UserService{repos: repos, hasher: hasher, hmacSecret: secret, ttl: time}
+func NewUsers(repo UsersRepository, sessionsRepo SessionsRepository, hasher PasswordHasher, secret []byte) *Users {
+	return &Users{
+		repo:         repo,
+		sessionsRepo: sessionsRepo,
+		hasher:       hasher,
+		hmacSecret:   secret,
+	}
 }
 
-func (us *UserService) SignUp(input domain.SignUpInput) error {
-	password, err := us.hasher.Hash(input.Password)
+func (s *Users) SignUp(ctx context.Context, inp domain.SignUpInput) error {
+	password, err := s.hasher.Hash(inp.Password)
 	if err != nil {
 		return err
 	}
+
 	user := domain.User{
-		Login:    input.Login,
-		Email:    input.Email,
-		Password: password,
+		Name:         inp.Name,
+		Email:        inp.Email,
+		Password:     password,
+		RegisteredAt: time.Now(),
 	}
-	return us.repos.Create(user)
+
+	return s.repo.Create(ctx, user)
 }
 
-func (us *UserService) SignIn(input domain.SignInInput) (string, error) {
-	password, err := us.hasher.Hash(input.Password)
+func (s *Users) SignIn(ctx context.Context, inp domain.SignInInput) (string, string, error) {
+	password, err := s.hasher.Hash(inp.Password)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	user, err := us.repos.Get(password, input.Login)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", domain.ErrUserNotFound
-		}
-		return "", err
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Subject:   strconv.Itoa(int(user.Id)),
-		IssuedAt:  time.Now().Unix(),
-		ExpiresAt: time.Now().Add(us.ttl).Unix(),
-	})
 
-	return token.SignedString(us.hmacSecret)
+	user, err := s.repo.GetByCredentials(ctx, inp.Email, password)
+	if err != nil {
+		return "", "", err
+	}
+
+	return s.generateTokens(ctx, user.ID)
 }
-func (us *UserService) ParseToken(ctx context.Context, token string) (int64, error) {
+
+func (s *Users) ParseToken(ctx context.Context, token string) (int64, error) {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return us.hmacSecret, nil
+		return s.hmacSecret, nil
 	})
 	if err != nil {
 		return 0, err
@@ -90,4 +106,58 @@ func (us *UserService) ParseToken(ctx context.Context, token string) (int64, err
 	}
 
 	return int64(id), nil
+}
+
+func (s *Users) generateTokens(ctx context.Context, userId int64) (string, string, error) {
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Subject:   strconv.Itoa(int(userId)),
+		IssuedAt:  time.Now().Unix(),
+		ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
+	})
+
+	accessToken, err := t.SignedString(s.hmacSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err := newRefreshToken()
+	if err != nil {
+		return "", "", err
+	}
+
+	if err := s.sessionsRepo.Create(ctx, domain.RefreshSession{
+		UserID:    userId,
+		Token:     refreshToken,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 30),
+	}); err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
+
+func newRefreshToken() (string, error) {
+	b := make([]byte, 32)
+
+	s := rand.NewSource(time.Now().Unix())
+	r := rand.New(s)
+
+	if _, err := r.Read(b); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", b), nil
+}
+
+func (s *Users) RefreshTokens(ctx context.Context, refreshToken string) (string, string, error) {
+	session, err := s.sessionsRepo.Get(ctx, refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+
+	if session.ExpiresAt.Unix() < time.Now().Unix() {
+		return "", "", domain.ErrRefreshTokenExpired
+	}
+
+	return s.generateTokens(ctx, session.UserID)
 }

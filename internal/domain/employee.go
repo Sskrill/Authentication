@@ -1,11 +1,5 @@
 package domain
 
-import "errors"
-
-var (
-	ErrEmplNotFound = errors.New("employee not found")
-)
-
 type Employee struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
