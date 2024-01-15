@@ -71,7 +71,7 @@ func (e *Employees) Update(ctx context.Context, id int64, empl domain.UpdateEmpl
 		return ErrEmplNotFound
 	}
 
-	_, err = e.db.Exec("UPDATE employee SET name=$1,age=$2,job=$3", empl.Name, empl.Age, empl.Job)
+	_, err = e.db.Exec("UPDATE employee SET name=$1,age=$2,job=$3 WHERE id=$4", empl.Name, empl.Age, empl.Job, id)
 
 	return err
 }

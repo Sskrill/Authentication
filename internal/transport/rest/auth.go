@@ -2,12 +2,10 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/GOLANG-NINJA/crud-app/internal/domain"
-	"github.com/sirupsen/logrus"
 )
 
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +29,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.usersService.SignUp(r.Context(), inp)
+	err = h.usersService.SignUp(inp)
 	if err != nil {
 		logError("signUp", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -62,7 +60,7 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, refreshToken, err := h.usersService.SignIn(r.Context(), inp)
+	id, err := h.usersService.SignIn(inp)
 	if err != nil {
 		logError("signIn", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -70,7 +68,7 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := json.Marshal(map[string]string{
-		"token": accessToken,
+		"id": id,
 	})
 	if err != nil {
 		logError("signIn", err)
@@ -78,38 +76,21 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Set-Cookie", fmt.Sprintf("refresh-token=%s; HttpOnly", refreshToken))
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(response)
 }
-
-func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("refresh-token")
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
+	id, err := getSessionIdFromRequest(r)
 	if err != nil {
-		logError("refresh", err)
+		logError("logout", err)
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 
-	logrus.Infof("%s", cookie.Value)
-
-	accessToken, refreshToken, err := h.usersService.RefreshTokens(r.Context(), cookie.Value)
+	err = h.session.Delete(id)
 	if err != nil {
-		logError("refresh", err)
+		logError("logout", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
-	response, err := json.Marshal(map[string]string{
-		"token": accessToken,
-	})
-	if err != nil {
-		logError("signIn", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Set-Cookie", fmt.Sprintf("refresh-token='%s'; HttpOnly", refreshToken))
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(response)
+	w.WriteHeader(http.StatusOK)
 }

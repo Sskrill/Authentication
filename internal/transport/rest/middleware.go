@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -27,28 +26,24 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func (h *Handler) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token, err := getTokenFromRequest(r)
+		id, err := getSessionIdFromRequest(r)
 		if err != nil {
 			logError("authMiddleware", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-
-		userId, err := h.usersService.ParseToken(r.Context(), token)
+		err = h.session.GetId(id)
 		if err != nil {
 			logError("authMiddleware", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-
-		ctx := context.WithValue(r.Context(), ctxUserID, userId)
-		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
 }
 
-func getTokenFromRequest(r *http.Request) (string, error) {
+func getSessionIdFromRequest(r *http.Request) (string, error) {
 	header := r.Header.Get("Authorization")
 	if header == "" {
 		return "", errors.New("empty auth header")
@@ -60,7 +55,7 @@ func getTokenFromRequest(r *http.Request) (string, error) {
 	}
 
 	if len(headerParts[1]) == 0 {
-		return "", errors.New("token is empty")
+		return "", errors.New("id is empty")
 	}
 
 	return headerParts[1], nil
