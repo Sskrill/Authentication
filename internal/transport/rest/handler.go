@@ -17,6 +17,7 @@ type User interface {
 	SignIn(ctx context.Context, inp domain.SignInInput) (string, string, error)
 	ParseToken(ctx context.Context, accessToken string) (int64, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (string, string, error)
+	Publish(body string) error
 }
 
 type Handler struct {

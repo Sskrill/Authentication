@@ -41,7 +41,11 @@ func (h *Handler) getEmplByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: GET ,Enity: Employee")
+	if err != nil {
+		logError("getEmplByID", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(response)
 }
@@ -67,7 +71,11 @@ func (h *Handler) createEmpl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: POST ,Enity: Employee")
+	if err != nil {
+		logError("createEmpl", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -85,7 +93,11 @@ func (h *Handler) deleteEmpl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: DELETE ,Enity: Employee")
+	if err != nil {
+		logError("deleteEmpl", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -136,6 +148,10 @@ func (h *Handler) updateEmpl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: PUT ,Enity: Employee")
+	if err != nil {
+		logError("updateEmpl", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.WriteHeader(http.StatusOK)
 }

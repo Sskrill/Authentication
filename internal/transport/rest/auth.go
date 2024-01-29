@@ -37,7 +37,11 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: POST ,Enity: User")
+	if err != nil {
+		logError("signUp", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -77,7 +81,11 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.usersService.Publish("Method: GET ,Enity: User")
+	if err != nil {
+		logError("signIn", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.Header().Add("Set-Cookie", fmt.Sprintf("refresh-token=%s; HttpOnly", refreshToken))
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(response)

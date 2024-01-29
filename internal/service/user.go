@@ -10,6 +10,7 @@ import (
 
 	"github.com/GOLANG-NINJA/crud-app/internal/domain"
 	"github.com/golang-jwt/jwt"
+	"github.com/streadway/amqp"
 )
 
 // PasswordHasher provides hashing logic to securely store passwords.
@@ -31,16 +32,19 @@ type Users struct {
 	repo         UsersRepository
 	sessionsRepo SessionsRepository
 	hasher       PasswordHasher
-
-	hmacSecret []byte
+	hmacSecret   []byte
+	channel      *amqp.Channel
+	queueName    string
 }
 
-func NewUsers(repo UsersRepository, sessionsRepo SessionsRepository, hasher PasswordHasher, secret []byte) *Users {
+func NewUsers(repo UsersRepository, sessionsRepo SessionsRepository, hasher PasswordHasher, secret []byte, ch *amqp.Channel, queueName string) *Users {
 	return &Users{
 		repo:         repo,
 		sessionsRepo: sessionsRepo,
 		hasher:       hasher,
 		hmacSecret:   secret,
+		channel:      ch,
+		queueName:    queueName,
 	}
 }
 
@@ -160,4 +164,9 @@ func (s *Users) RefreshTokens(ctx context.Context, refreshToken string) (string,
 	}
 
 	return s.generateTokens(ctx, session.UserID)
+}
+
+func (s *Users) Publish(body string) error {
+	err := s.channel.Publish("", s.queueName, false, false, amqp.Publishing{ContentType: "text/plain", Body: []byte(body)})
+	return err
 }
