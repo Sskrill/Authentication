@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/GOLANG-NINJA/crud-app/cmd/docs"
+	_ "github.com/GOLANG-NINJA/crud-app/docs"
 	"net/http"
 	"os"
 

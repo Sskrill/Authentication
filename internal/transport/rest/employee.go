@@ -15,6 +15,17 @@ var (
 	ErrRefreshTokenExpired = errors.New("refresh token expired")
 )
 
+// @Summary Get Employee By ID
+// @Security ApiKeyAuth
+// @Tags Employee
+// @Description get employee by id
+// @ID get-empl-by-id
+// @Accept json
+// @Produce json
+// @Param id path int true "Employee ID"
+// @Success 200 {object} domain.Employee
+// @Failure 400,404 No content
+// @Router /employee/{id} [get]
 func (h *Handler) getEmplByID(w http.ResponseWriter, r *http.Request) {
 	id, err := getIdFromRequest(r)
 	if err != nil {
@@ -46,6 +57,17 @@ func (h *Handler) getEmplByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
+// @Summary Create Employee
+// @Security ApiKeyAuth
+// @Tags Employee
+// @Description create employee
+// @ID create-empl
+// @Accept json
+// @Produce json
+// @Param input body domain.Employee true "Employee info"
+// @Success 200 No content
+// @Failure 400,404 No content
+// @Router /employee [post]
 func (h *Handler) createEmpl(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -71,6 +93,17 @@ func (h *Handler) createEmpl(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// @Summary Delete Employee By ID
+// @Security ApiKeyAuth
+// @Tags Employee
+// @Description delete employee by id
+// @ID delete-empl
+// @Accept json
+// @Produce json
+// @Param id path int true "Employee ID"
+// @Success 200 No content
+// @Failure 400,404 No content
+// @Router /employee/{id} [post]
 func (h *Handler) deleteEmpl(w http.ResponseWriter, r *http.Request) {
 	id, err := getIdFromRequest(r)
 	if err != nil {
@@ -89,6 +122,17 @@ func (h *Handler) deleteEmpl(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// @Summary Get All Employees
+// @Security ApiKeyAuth
+// @Tags Employee
+// @Description get all employees
+// @ID get-all-empls
+// @Accept json
+// @Produce json
+// @Param id query int false "Employee ID"
+// @Success 200 {array} domain.Employee
+// @Failure 400,404 No content
+// @Router /employee [get]
 func (h *Handler) getAllEmpls(w http.ResponseWriter, r *http.Request) {
 	empls, err := h.employee.GetAll(r.Context())
 	if err != nil {
@@ -108,6 +152,17 @@ func (h *Handler) getAllEmpls(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
+// @Summary Update Employee By ID
+// @Security ApiKeyAuth
+// @Tags Employee
+// @Description update employee
+// @ID update-empl
+// @Accept json
+// @Produce json
+// @Param id path int true "Employee ID"
+// @Success 200 No content
+// @Failure 400,404 No content
+// @Router /employee/{id} [put]
 func (h *Handler) updateEmpl(w http.ResponseWriter, r *http.Request) {
 	id, err := getIdFromRequest(r)
 	if err != nil {
