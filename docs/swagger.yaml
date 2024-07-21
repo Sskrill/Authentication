@@ -11,6 +11,32 @@ definitions:
       name:
         type: string
     type: object
+  domain.SignInInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.SignUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
 host: petstore.swagger.io
 info:
   contact:
@@ -25,6 +51,116 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
+  /auth/refresh:
+    get:
+      consumes:
+      - application/json
+      description: refresh tokens
+      operationId: refresh
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: "No"
+        "404":
+          description: Not Found
+          schema:
+            type: "No"
+        "500":
+          description: Internal Server Error
+          schema:
+            type: "No"
+        default:
+          description: ""
+          schema:
+            type: "No"
+      summary: Refresh Token
+      tags:
+      - auth
+  /auth/sign-in:
+    get:
+      consumes:
+      - application/json
+      description: login
+      operationId: login
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: "No"
+        "404":
+          description: Not Found
+          schema:
+            type: "No"
+        "500":
+          description: Internal Server Error
+          schema:
+            type: "No"
+        default:
+          description: ""
+          schema:
+            type: "No"
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: "No"
+        "400":
+          description: Bad Request
+          schema:
+            type: "No"
+        "404":
+          description: Not Found
+          schema:
+            type: "No"
+        "500":
+          description: Internal Server Error
+          schema:
+            type: "No"
+        default:
+          description: ""
+          schema:
+            type: "No"
+      summary: SignUp
+      tags:
+      - auth
   /employee:
     get:
       consumes:

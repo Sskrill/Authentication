@@ -10,6 +10,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// @Summary SignUp
+// @Tags auth
+// @Description create account
+// @ID create-account
+// @Accept  json
+// @Produce  json
+// @Param input body domain.SignUpInput true "account info"
+// @Success 200 No content
+// @Failure 400,404 No content
+// @Failure 500 No content
+// @Failure default No content
+// @Router /auth/sign-up [post]
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -41,6 +53,18 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// @Summary SignIn
+// @Tags auth
+// @Description login
+// @ID login
+// @Accept  json
+// @Produce  json
+// @Param input body domain.SignInInput true "credentials"
+// @Success 200 {string} string "token"
+// @Failure 400,404 No content
+// @Failure 500 No content
+// @Failure default No content
+// @Router /auth/sign-in [get]
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -83,6 +107,17 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
+// @Summary Refresh Token
+// @Tags auth
+// @Description refresh tokens
+// @ID refresh
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string "token"
+// @Failure 400,404 No content
+// @Failure 500 No content
+// @Failure default No content
+// @Router /auth/refresh [get]
 func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh-token")
 	if err != nil {

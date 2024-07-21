@@ -50,15 +50,15 @@ func (h *Handler) InitRouter() *mux.Router {
 		auth.HandleFunc("/refresh", h.refresh).Methods(http.MethodGet)
 	}
 
-	books := r.PathPrefix("/employee").Subrouter()
+	employee := r.PathPrefix("/employee").Subrouter()
 	{
-		books.Use(h.authMiddleware)
+		employee.Use(h.authMiddleware)
 
-		books.HandleFunc("", h.createEmpl).Methods(http.MethodPost)
-		books.HandleFunc("", h.getAllEmpls).Methods(http.MethodGet)
-		books.HandleFunc("/{id:[0-9]+}", h.getEmplByID).Methods(http.MethodGet)
-		books.HandleFunc("/{id:[0-9]+}", h.deleteEmpl).Methods(http.MethodDelete)
-		books.HandleFunc("/{id:[0-9]+}", h.updateEmpl).Methods(http.MethodPut)
+		employee.HandleFunc("", h.createEmpl).Methods(http.MethodPost)
+		employee.HandleFunc("", h.getAllEmpls).Methods(http.MethodGet)
+		employee.HandleFunc("/{id:[0-9]+}", h.getEmplByID).Methods(http.MethodGet)
+		employee.HandleFunc("/{id:[0-9]+}", h.deleteEmpl).Methods(http.MethodDelete)
+		employee.HandleFunc("/{id:[0-9]+}", h.updateEmpl).Methods(http.MethodPut)
 	}
 
 	return r
