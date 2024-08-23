@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	redisC "github.com/GOLANG-NINJA/crud-app/internal/cache/redis"
 	"net/http"
 	"os"
 
@@ -27,6 +28,7 @@ func main() {
 
 	db, err := database.NewDB()
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	// init deps
@@ -36,13 +38,13 @@ func main() {
 		log.Fatal(err)
 	}
 	employees := psql.NewEmpls(db, auditClient)
-
+	cacheRedis := redisC.NewRedisCache("localhost:6379", "")
 	usersRepo := psql.NewUsers(db)
 	tokensRepo := psql.NewTokens(db)
 
 	usersService := service.NewUsers(usersRepo, tokensRepo, hasher, auditClient, []byte("secret"))
 
-	handler := rest.NewHandler(employees, usersService)
+	handler := rest.NewHandler(employees, usersService, cacheRedis)
 
 	// init & run server
 	srv := &http.Server{

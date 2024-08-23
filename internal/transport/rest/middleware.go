@@ -65,3 +65,19 @@ func getTokenFromRequest(r *http.Request) (string, error) {
 
 	return headerParts[1], nil
 }
+
+func (h *Handler) cacheMidleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		val, err := h.caching.Get(r.URL.String())
+		if err == nil {
+
+			w.Write(val)
+			w.WriteHeader(http.StatusOK)
+		} else {
+			logError("cacheMiddleware", err)
+
+			next.ServeHTTP(w, r)
+		}
+
+	})
+}

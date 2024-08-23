@@ -18,16 +18,21 @@ type User interface {
 	ParseToken(ctx context.Context, accessToken string) (int64, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (string, string, error)
 }
-
+type Caching interface {
+	Get(key string) ([]byte, error)
+	Save(key string, value []byte) error
+}
 type Handler struct {
 	employee     *psql.Employees
 	usersService User
+	caching      Caching
 }
 
-func NewHandler(empls *psql.Employees, users User) *Handler {
+func NewHandler(empls *psql.Employees, users User, caching Caching) *Handler {
 	return &Handler{
 		employee:     empls,
 		usersService: users,
+		caching:      caching,
 	}
 }
 
@@ -45,7 +50,7 @@ func (h *Handler) InitRouter() *mux.Router {
 	books := r.PathPrefix("/employee").Subrouter()
 	{
 		books.Use(h.authMiddleware)
-
+		books.Use(h.cacheMidleware)
 		books.HandleFunc("", h.createEmpl).Methods(http.MethodPost)
 		books.HandleFunc("", h.getAllEmpls).Methods(http.MethodGet)
 		books.HandleFunc("/{id:[0-9]+}", h.getEmplByID).Methods(http.MethodGet)

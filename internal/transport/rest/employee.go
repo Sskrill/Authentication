@@ -23,7 +23,7 @@ func (h *Handler) getEmplByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := h.employee.GetByID(context.TODO(), id)
+	empl, err := h.employee.GetByID(context.TODO(), id)
 	if err != nil {
 		if errors.Is(err, ErrEmplNotFound) {
 			w.WriteHeader(http.StatusBadRequest)
@@ -35,13 +35,16 @@ func (h *Handler) getEmplByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := json.Marshal(book)
+	response, err := json.Marshal(empl)
 	if err != nil {
 		logError("getEmplByID", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.caching.Save(r.URL.String(), response)
+	if err != nil {
+		logError("getEmplByID(caching)", err)
+	}
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(response)
 }
@@ -54,14 +57,14 @@ func (h *Handler) createEmpl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var book domain.Employee
-	if err = json.Unmarshal(reqBytes, &book); err != nil {
+	var empl domain.Employee
+	if err = json.Unmarshal(reqBytes, &empl); err != nil {
 		logError("createEmpl", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = h.employee.Create(r.Context(), book)
+	err = h.employee.Create(r.Context(), empl)
 	if err != nil {
 		logError("createEmpl", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -103,7 +106,10 @@ func (h *Handler) getAllEmpls(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	err = h.caching.Save(r.URL.String(), response)
+	if err != nil {
+		logError("getAllEmpls(caching)", err)
+	}
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(response)
 }
