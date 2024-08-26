@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=123456789sq
+      - DB_DBNAME=postgres
+      - DB_SSLMODE=disable
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456789sq
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+
+  migrate:
+    image: migrate/migrate:v4.15.2
+    volumes:
+    - ./migrations:/migrations
+    command: [
+    "-path", "/migrations",
+    "-database", "postgres://postgres:123456789sq@db:5432/postgres?sslmode=disable",
+    "up"
+  ]
+    depends_on:
+      - db
