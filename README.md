@@ -3,3 +3,5 @@
 **Added a gRPC client for logging.**
 
 **Added cache with Redis**
+
+**Added Dokcer Compose with migrations**

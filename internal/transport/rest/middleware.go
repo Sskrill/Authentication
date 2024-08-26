@@ -3,6 +3,7 @@ package rest
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -70,7 +71,7 @@ func (h *Handler) cacheMidleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		val, err := h.caching.Get(r.URL.String())
 		if err == nil {
-
+			fmt.Println("from Redis")
 			w.Write(val)
 			w.WriteHeader(http.StatusOK)
 		} else {
