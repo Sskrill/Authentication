@@ -2,6 +2,7 @@ package redisC
 
 import (
 	"context"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -12,6 +13,10 @@ type CacheRedis struct {
 
 func NewRedisCache(url, password string) *CacheRedis {
 	cl := redis.NewClient(&redis.Options{Addr: url, Password: password})
+	err := cl.Ping(context.Background()).Err()
+	if err != nil {
+		fmt.Println("Redis Error: ", err.Error())
+	}
 	return &CacheRedis{cl: cl}
 }
 

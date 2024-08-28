@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d99171bc-c6d7-4979-bb2f-7afc3a8289a7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/internal/transport/rest/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/transport/rest/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/cache/redis/redisC.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/cache/redis/redisC.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/transport/rest/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/transport/rest/handler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +45,7 @@
     &quot;git-widget-placeholder&quot;: &quot;withAudit&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/BACKEND PROJECTS/Gyber/Wrapper&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/BACKEND PROJECTS/grpc/Authentication&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
