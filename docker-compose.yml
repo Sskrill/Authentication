@@ -11,6 +11,7 @@ services:
       - DB_SSLMODE=disable
     depends_on:
       - db
+      - redis
     ports:
       - "8080:8080"
   db:
@@ -33,3 +34,8 @@ services:
   ]
     depends_on:
       - db
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

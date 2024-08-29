@@ -38,7 +38,7 @@ func main() {
 		log.Fatal(err)
 	}
 	employees := psql.NewEmpls(db, auditClient)
-	cacheRedis := redisC.NewRedisCache("localhost:6379", "")
+	cacheRedis := redisC.NewRedisCache("redis:6379", "")
 	usersRepo := psql.NewUsers(db)
 	tokensRepo := psql.NewTokens(db)
 

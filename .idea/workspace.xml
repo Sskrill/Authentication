@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d99171bc-c6d7-4979-bb2f-7afc3a8289a7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/cache/redis/redisC.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/cache/redis/redisC.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/transport/rest/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/transport/rest/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
